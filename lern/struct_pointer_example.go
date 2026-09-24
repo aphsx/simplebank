@@ -1,4 +1,4 @@
-package struct_pointer_example
+package main
 
 import "fmt"
 

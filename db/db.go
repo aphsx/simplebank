@@ -2,7 +2,7 @@ package db
 import (
 	"database/sql"
 	"time"
-	"github.com/lib/pg" // postgres driver
+	_ "github.com/lib/pq" // postgres driver
 )
 
 func NewDB(dataSrouceName string) (*sql.DB,error){

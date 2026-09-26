@@ -4,10 +4,9 @@ import (
 	"context"
 )
 
-
-type CreateAccountParams struct{
-	Owner string `json:"owner"`
-	Balance int64 `json:"balance"`
+type CreateAccountParams struct {
+	Owner    string `json:"owner"`
+	Balance  int64  `json:"balance"`
 	Currency string `json:"currency"`
 }
 
@@ -24,10 +23,9 @@ INSERT INTO accounts(
 RETURNING id,owner,balance,currency,create_at;
 `
 
-
-func (q *Queries) CreateAccount(ctx context.Context,arg CreateAccountParams)(Account,error){
-	row := q.db.QueryRowContext(ctx,createAccount,arg.Owner,arg.Balance,arg.Currency)
-	var i Accounts
+func (q *Queries) CreateAccount(ctx context.Context, arg CreateAccountParams) (Account, error) {
+	row := q.db.QueryRowContext(ctx, createAccount, arg.Owner, arg.Balance, arg.Currency)
+	var i Account
 	err := row.Scan(
 		&i.ID,
 		&i.Owner,
@@ -35,9 +33,8 @@ func (q *Queries) CreateAccount(ctx context.Context,arg CreateAccountParams)(Acc
 		&i.Currency,
 		&i.CreateAt,
 	)
-	return i,err
+	return i, err
 }
-
 
 const getAccount = `-- namer: GetAccount :one
 SELECT id,owner,
@@ -46,9 +43,10 @@ SELECT id,owner,
 	create_at FROM accounts
 WHERE id = $1 LIMIT 1;
 `
-func (q *Queries) GetAccount(ctx context.Context,id int64)(Account,error){
-	row := q.db.QueryRowContext(ctx,getAccount,id)
-	var i accounts
+
+func (q *Queries) GetAccount(ctx context.Context, id int64) (Account, error) {
+	row := q.db.QueryRowContext(ctx, getAccount, id)
+	var i Account
 	err := row.Scan(
 		&i.ID,
 		&i.Owner,
@@ -56,5 +54,5 @@ func (q *Queries) GetAccount(ctx context.Context,id int64)(Account,error){
 		&i.Currency,
 		&i.CreateAt,
 	)
-	return i,err
+	return i, err
 }

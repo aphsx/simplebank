@@ -1,5 +1,6 @@
-// สร้าง store struct ที่สอบทอดความสามรถของ Queries มาทั้งหมด และเพ่ิมความสามารถในการเปิด  Transaction
-// จัการBEGIN,COMMIT ,และROLLBACK
+// สร้างstore struct สืบทอดความสามารถของ Queries มาทั้งหมด
+// และเพิ่มความสามารถในการเปิดTransaction จัดการ BEGIN,COMMIT, และ ROLLBACK
+
 package db
 
 import (
@@ -8,7 +9,8 @@ import (
 	"fmt"
 )
 
-// store ครอบคลุมทั้งfuncการqueryรายตัว และทำงานรวมกันเป็นTransaction
+// store ครอบคลุมทั้งfunc การ queryรายตัว และการทำงานร่วมกันเป็น Transaction
+
 type Store struct {
 	*Queries
 	db *sql.DB
@@ -21,24 +23,23 @@ func NewStore(db *sql.DB) *Store {
 	}
 }
 
-//ecexTx funcภายในควลคุมรอบชีวติของ Transaction อย่างปลอดภัย
-
+// execTx เป็นฟังก์ชันภายในที่ควบคุมCycleของtransaction อย่างปลอดภ้ย
 func (store *Store) execTx(ctx context.Context, fn func(*Queries) error) error {
 	tx, err := store.db.BeginTx(ctx, nil)
 	if err != nil {
 		return err
 	}
 
-	q := New(tx) // สร้างQueriesชุดใหม่ที่รันนอยู่บนTransaction นี้
-	err = fn(q)
+	q := New(tx) //สร้างQueries ชุดใหม่ที่รันอยู่บนTransactionนี้
+	err = fn(q)  // run callback funcที่ส่งเข้ามา
 	if err != nil {
-		//หากเกิด err ให้ย้อนกลับทั้งที
+		//หากเกิด err ให้สั่งrollbackทันที
 		if rbErr := tx.Rollback(); rbErr != nil {
 			return fmt.Errorf("tx err: %v, rollback err: %v", err, rbErr)
 		}
 		return err
 	}
 
-	//หากคำส่ังทุกอย่างาสำเร็จ ไมมีerrใหสั่งยืนยนับันทึกข้อมูล
+	//หากคำส่ังทุกอย่างสำเร็จไม่มีerrให้สั่งบันทึกข้อมูล
 	return tx.Commit()
 }

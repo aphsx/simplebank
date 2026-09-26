@@ -26,10 +26,11 @@ RETURNING id,owner,balance,currency,create_at;
 
 
 func (q *Queries) CreateAccount(ctx context.Context,arg CreateAccountParams)(Account,error){
-	row := q.db.QueryRowContext(ctx,createAccount,arg,Owner,arg.Balance,argCurrency)
-	var i accounts
+	row := q.db.QueryRowContext(ctx,createAccount,arg.Owner,arg.Balance,arg.Currency)
+	var i Accounts
 	err := row.Scan(
 		&i.ID,
+		&i.Owner,
 		&i.Balance,
 		&i.Currency,
 		&i.CreateAt,

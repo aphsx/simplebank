@@ -61,7 +61,7 @@ func (q *Queries) GetAccount(ctx context.Context, id int64) (Account, error) {
 
 type AddAccountBalanceParams struct {
 	ID     int64 `json:"id"`
-	Amount int   `json:"amount"` //+ เงินเข้า,- เงินออก
+	Amount int64 `json:"amount"` //+ เงินเข้า,- เงินออก
 }
 
 const addAccountBalance = `-- name : AddAccountBalance :one

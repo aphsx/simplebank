@@ -13,7 +13,7 @@ import (
 )
 
 // store ครอบคลุมทั้งfunc การ queryรายตัว และการทำงานร่วมกันเป็น Transaction
-
+// สร้างstore struct มาให้มัดรวมตัวแปรเชื่อมฐานข้อมูล db กับคำสั่งคิวรี (Queries)เป็นก้อนเดียวกัน
 type Store struct {
 	*Queries
 	db *sql.DB
@@ -27,6 +27,8 @@ func NewStore(db *sql.DB) *Store {
 }
 
 // execTx เป็นฟังก์ชันภายในที่ควบคุมCycleของtransaction อย่างปลอดภ้ย
+// สร้งexecTx มาทำหน้าที่เป็นtemplate ในการรันtxโดยที่เราไม่ต้องมานั่งเขียนคำสั่งdb.Begintx,tx.Rollback,tx.Commitซ้ำๆ
+// ทุกครั้งเวลาจะทำระบบอะไรก็ตาม
 func (store *Store) execTx(ctx context.Context, fn func(*Queries) error) error {
 	//1สั่งให้ฐานข้อมูลเปิดTransaction (เริ่มหระบวนการคมข้อมูลแบบACID)
 	tx, err := store.db.BeginTx(ctx, nil)

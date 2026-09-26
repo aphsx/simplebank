@@ -14,7 +14,6 @@ type TransferTxParams struct {
 }
 
 // tranferTxResult ผลลัพธ์ที่ได้หลังจากโอนเงินสำเร็จ เพื่อส่งกลับให้หน้าบ้านแสดงผล
-
 type TransferTxResult struct {
 	Transfer    Tranfer `json:"transfer"`
 	FromAccount Account `json:"from_account"`

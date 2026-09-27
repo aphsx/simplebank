@@ -95,7 +95,7 @@ func (store *Store) TransferTx(ctx context.Context, arg TransferTxParams) (Trans
 		} else {
 			//case2 To id น้อยกว่า from idเพ่ิมเงินบััญชี Toก่อนแล้วค่อยหักFrom
 			result.ToAccount, result.FromAccount, err = addMoney(
-				ctx, q, arg.ToAccountID, -arg.Amount, arg.FromAccountID, arg.Amount,
+				ctx, q, arg.ToAccountID, arg.Amount, arg.FromAccountID, -arg.Amount,
 			)
 		}
 		return err

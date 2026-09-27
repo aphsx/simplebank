@@ -143,7 +143,7 @@ func TestTransferTxDeadlock(t *testing.T) {
 	updatedAccount2, err := testQueries.GetAccount(context.Background(), account2.ID)
 	require.NoError(t, err)
 
-	require.Equal(t, account1.Balance, updatedAccount1)
-	require.Equal(t, account2.Balance, updatedAccount2)
+	require.Equal(t, account1.Balance, updatedAccount1.Balance)
+	require.Equal(t, account2.Balance, updatedAccount2.Balance)
 
 }

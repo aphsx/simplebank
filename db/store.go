@@ -1,7 +1,43 @@
 package db
 
 //func TransferTx และเพ่ิมfunc addMoney กลไก Lock odering
-import "context"
+import (
+	"context"
+	"database/sql"
+	"fmt"
+)
+
+// คลุมทั้งfuncการqueryรายตัว และทำงานรวมกันเป็น transaction
+type Store struct {
+	*Queries
+	db *sql.DB
+}
+
+// NewStore create instancใหม่ของStore
+func NewStore(db *sql.DB) *Store {
+	return &Store{
+		db:      db,
+		Queries: New(db),
+	}
+}
+
+// execTx จัดการTransaction กลางามี Auto Commit/Rollback
+func (store *Store) execTx(ctx context.Context, fn func(*Queries) error) error {
+	tx, err := store.db.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	q := New(tx)
+	err = fn(q)
+	if err != nil {
+		if rbErr := tx.Rollback(); rbErr != nil {
+			return fmt.Errorf("tx err: %v, rollback err: %v", err, rbErr)
+		}
+		return err
+	}
+
+	return tx.Commit()
+}
 
 //addMoney updata balane ของทั้ง2 account ตามลำดับที่ส่งเข้ามา
 

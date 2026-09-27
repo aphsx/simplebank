@@ -1,4 +1,4 @@
-module mybank
+module simplebank
 
 go 1.26.3
 

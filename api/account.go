@@ -4,18 +4,17 @@ package api
 //แกะJSON payload และ validatin ก่อนส่งไปบันทึกdb
 
 import (
-	"mybank/db"
 	"net/http"
 	db "simplebank/db"
 
-	"gitgub.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin"
 )
 
 //createAccountRequest กำหนด JSON ขาเข้า กับ (Binding tags) กฎการตรวจความถูกต้อง
 
 type createAccountRequest struct {
-	Owner    string `json:"owner binding:"required"`
-	Currency string `json:"owner" binding: "required,oneof=USD EUR THB`
+	Owner    string `json:"owner" binding:"required"`
+	Currency string `json:"currency" binding:"required,oneof=USD EUR THB"`
 }
 
 func (server *Server) createAccount(ctx *gin.Context) {

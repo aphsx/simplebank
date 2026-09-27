@@ -31,3 +31,13 @@ func NewServer(store *db.Store) *Server {
 	server.router = router
 	return server
 }
+
+// start เปิดรันserverบนAddress ที่กำหนด (":8080")
+func (server *Server) Start(address string) error {
+	return server.router.Run(address)
+}
+
+// errorRespone จัดรูปแบบerrให้อยู่ในรูปJson key "error"
+func errorResponse(err error) gin.H {
+	return gin.H{"error": err.Error()}
+}

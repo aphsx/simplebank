@@ -18,7 +18,7 @@ func TestTransferTx(t *testing.T) {
 	account1 := createRandomAccount(t)
 	account2 := createRandomAccount(t)
 
-	fmt.Println("ยอดก่อนโอน:", account1.Balance, account2.Balance)
+	fmt.Println(">> ยอดเงินหลังโอน:", account1.Balance, account2.Balance)
 
 	//2 ปล่อยgoroutine โอนพร้อมกัน 5ครั้ง ครั้งละ 10บาท
 	n := 5

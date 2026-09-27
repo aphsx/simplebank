@@ -16,7 +16,7 @@ type CreateTransferParams struct {
 //
 
 const createTransfer = `-- name :CreateTransfer :one
-INSER INTO transfers(
+INSERT INTO transfers(
 	from_account_id,
 	to_account_id,
 	amount

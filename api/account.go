@@ -43,3 +43,33 @@ func (server *Server) createAccount(ctx *gin.Context) {
 	//4 ส่งข้อมูลAccount create succes back with JSON พร้อมhttp status 201 created
 	ctx.JSON(http.StatusCreated, account)
 }
+
+type listAccountsRequest struct {
+	PageID   int32 `form:"page_id" binding:"required,min=1"`
+	PageSize int32 `form:"page_size" binding:"required,min=5,max=10"`
+}
+
+func (server *Server) listAccounts(ctx *gin.Context) {
+	//1 query parameters จาก URL (?page_id=1&page_size=5) ผ่าน ShouldBingQuery
+	var req listAccountsRequest
+	if err := ctx.ShouldBindQuery(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	//2 calc Limit and Offset สำหรับส่งให้คำสั่งSQL (offset = (PageID -1 )*PageSize)
+	arg := db.ListAccountsParams{
+		Limit:  req.PageSize,
+		Offset: (req.PageID - 1) * req.PageSize,
+	}
+
+	//3 ดึงlist accountจากdbผ่านstore
+	accounts, err := server.store.ListAccounts(ctx, arg)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	//4 ส่งJSON  array accountกลับพร้อม HTTP 200 OK
+	ctx.JSON(http.StatusOK, accounts)
+}

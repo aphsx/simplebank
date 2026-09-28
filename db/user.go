@@ -24,16 +24,15 @@ type CreateUserParams struct {
 }
 
 const createUser = `-- name: CreateUser :one
-INSERT INTO users(
-	username,
-	hashed_password,
-	full_name,
-	email,
-)	VALUES (
-	$1,$2,$3,$4
+INSERT INTO users (
+  username,
+  hashed_password,
+  full_name,
+  email
+) VALUES (
+  $1, $2, $3, $4
 )
-
-RETURNING username,hashed_password,full_name,email,password_changed_at,create_at;
+RETURNING username, hashed_password, full_name, email, password_changed_at, created_at;
 `
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
@@ -51,9 +50,9 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 	return i, err
 }
 
-const getUser = `-- name :GetUser :one
-SELECT username,hashed_password,full_name,email,password_changed_at,create_at FROM users
-WHERE username =$1 LIMIT 1;
+const getUser = `-- name: GetUser :one
+SELECT username, hashed_password, full_name, email, password_changed_at, created_at FROM users
+WHERE username = $1 LIMIT 1;
 `
 
 func (q *Queries) GetUser(ctx context.Context, username string) (User, error) {

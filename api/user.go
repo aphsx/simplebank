@@ -18,20 +18,20 @@ type createUserRequest struct {
 
 // userResponse คือ struct ที่ตัด hashpassword เพื่อความปลอด
 type userResponse struct {
-	Username         string    `json:"username"`
-	FullName         string    `json:"full_name"`
-	Email            string    `json:"email"`
-	PasswordChangeAt time.Time `json:"password_changed_at"`
-	CreateAt         time.Time `json:"create_at"`
+	Username          string    `json:"username"`
+	FullName          string    `json:"full_name"`
+	Email             string    `json:"email"`
+	PasswordChangedAt time.Time `json:"password_changed_at"`
+	CreatedAt         time.Time `json:"create_at"`
 }
 
 func newUserRespone(user db.User) userResponse {
 	return userResponse{
-		Username:         user.Username,
-		FullName:         user.FullName,
-		Email:            user.Email,
-		PasswordChangeAt: user.PasswordChangeAt,
-		CreateAt:         user.CreateAt,
+		Username:          user.Username,
+		FullName:          user.FullName,
+		Email:             user.Email,
+		PasswordChangedAt: user.PasswordChangedAt,
+		CreatedAt:         user.CreatedAt,
 	}
 }
 

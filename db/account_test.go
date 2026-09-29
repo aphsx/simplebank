@@ -13,18 +13,14 @@ import (
 //createRandomAccount helper funct ช้วยสร้างaccountสุ่มขึ้นมา1บัญชี
 
 func createRandomAccount(t *testing.T) Account {
+
+	user := createRandomUser(t) // 1. สร้าง User สุ่มขึ้นมาก่อนเสมอ
+
 	arg := CreateAccountParams{
-		Owner:    util.RandomOwner(),
+		Owner:    user.Username,
 		Balance:  util.RandomMoney(),
 		Currency: util.RandomCurrency(),
 	}
-	_, err := testQueries.CreateUser(context.Background(), CreateUserParams{
-		Username:       arg.Owner,
-		HashedPassword: "test-hash",
-		FullName:       "Test User",
-		Email:          arg.Owner + "@example.com",
-	})
-	require.NoError(t, err)
 
 	account, err := testQueries.CreateAccount(context.Background(), arg)
 	require.NoError(t, err)      //ต้องไม่มีerr

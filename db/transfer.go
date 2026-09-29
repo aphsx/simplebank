@@ -24,7 +24,7 @@ INSERT INTO transfers(
 	$1,$2,$3
 )
 
-RETURNING id,from_account_id,to_account_id,amount,create_at;
+RETURNING id,from_account_id,to_account_id,amount,created_at;
 `
 
 //CreateTransfers บันทึกประวัติการโอนลง transfer trasfers

@@ -18,6 +18,13 @@ func createRandomAccount(t *testing.T) Account {
 		Balance:  util.RandomMoney(),
 		Currency: util.RandomCurrency(),
 	}
+	_, err := testQueries.CreateUser(context.Background(), CreateUserParams{
+		Username:       arg.Owner,
+		HashedPassword: "test-hash",
+		FullName:       "Test User",
+		Email:          arg.Owner + "@example.com",
+	})
+	require.NoError(t, err)
 
 	account, err := testQueries.CreateAccount(context.Background(), arg)
 	require.NoError(t, err)      //ต้องไม่มีerr

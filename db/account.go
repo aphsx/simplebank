@@ -22,7 +22,7 @@ INSERT INTO accounts(
 	VALUES(
 	$1,$2,$3
 )
-RETURNING id,owner,balance,currency,create_at;
+RETURNING id,owner,balance,currency,created_at;
 `
 
 func (q *Queries) CreateAccount(ctx context.Context, arg CreateAccountParams) (Account, error) {
@@ -42,7 +42,7 @@ const getAccount = `-- namer: GetAccount :one
 SELECT id,owner,
 	balance,
 	currency,
-	create_at FROM accounts
+	created_at FROM accounts
 WHERE id = $1 LIMIT 1;
 `
 
@@ -68,7 +68,7 @@ const addAccountBalance = `-- name : AddAccountBalance :one
 UPDATE accounts
 SET balance = balance+$1
 WHERE id = $2
-RETURNING id,owner,balance,currency,create_at;
+RETURNING id,owner,balance,currency,created_at;
 `
 
 // AddAccountBalance ปรับยอดคงเหลือในระดับSQL เป็นAtomic (balance = balance + amount)
@@ -106,7 +106,7 @@ type ListAccountsParams struct {
 }
 
 const listAccounts = `-- name: ListAccounts :many
-SELECT id,owner,balance,currency,create_at FROM accounts
+SELECT id,owner,balance,currency,created_at FROM accounts
 ORDER BY id
 LIMIT $1 OFFSET $2
 `

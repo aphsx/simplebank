@@ -5,9 +5,10 @@ package api
 
 import (
 	"database/sql"
+	"errors"
 	"net/http"
-	db "simplebank/db"
 
+	db "simplebank/db"
 	"simplebank/token"
 
 	"github.com/gin-gonic/gin"
@@ -42,7 +43,7 @@ func (server *Server) createAccount(ctx *gin.Context) {
 
 	account, err := server.store.CreateAccount(ctx, arg)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err)) //ส่ง500 if db มีปัญหา
+		ctx.JSON(http.StatusForbidden, errorResponse(err)) //ส่ง500 if db มีปัญหา
 		return
 	}
 
@@ -52,7 +53,7 @@ func (server *Server) createAccount(ctx *gin.Context) {
 
 // create getAccountID
 type getAccountRequest struct {
-	ID int64 `uri:"id" binding:"requried,min1"`
+	ID int64 `uri:"id" binding:"required,min=1"`
 }
 
 func (server *Server) getAccount(ctx *gin.Context) {
@@ -73,6 +74,14 @@ func (server *Server) getAccount(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
+
+	authPayload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
+	if account.Owner != authPayload.Username {
+		err := errors.New("บัญชีนี้ไม่ได้เป็นของคุณ คุณไม่มีสิทธิ์เข้าถึงข้อมูล")
+		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
+		return
+	}
+
 	ctx.JSON(http.StatusOK, account) //ส่งHTTP 200ok
 }
 
@@ -91,7 +100,9 @@ func (server *Server) listAccounts(ctx *gin.Context) {
 	}
 
 	//2 calc Limit and Offset สำหรับส่งให้คำสั่งSQL (offset = (PageID -1 )*PageSize)
+	authPayload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
 	arg := db.ListAccountsParams{
+		Owner:  authPayload.Username,
 		Limit:  req.PageSize,
 		Offset: (req.PageID - 1) * req.PageSize,
 	}

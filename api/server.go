@@ -1,7 +1,10 @@
 package api
 
 import (
+	"fmt"
 	db "simplebank/db"
+	"simplebank/token"
+	"simplebank/util"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
@@ -11,16 +14,30 @@ import (
 //server จัดการHTTP requests ทั้งหมดของระบบ
 
 type Server struct {
-	store  *db.Store   //ที่เก็บตัวเชื่อมdbและTransaction
-	router *gin.Engine // จัการ Endpoint HTTPS Routing ของ gin
+	config     util.Config
+	store      *db.Store //ที่เก็บตัวเชื่อมdbและTransaction
+	tokenMaker token.Maker
+	router     *gin.Engine // จัการ Endpoint HTTPS Routing ของ gin
 }
 
 //NewServer กำหนดค่าเริ่มต้น สร้างRouter และ Register Endpoint APIทั้งหมด
 
-func NewServer(store *db.Store) *Server {
-	//1สร้างInstance ของserver แนบ storeเข้าไป
+// func NewServer(store *db.Store) *Server {
+// 	//1สร้างInstance ของserver แนบ storeเข้าไป
 
-	server := &Server{store: store}
+// server := &Server{store: store}
+func NewServer(config util.Config, store *db.Store) (*Server, error) {
+	tokenMaker, err := token.NewPasetoMaker(config.TokenSymmetricKey)
+
+	if err != nil {
+		return nil, fmt.Errorf("cannot create token maker : %w", err)
+	}
+
+	server := &Server{
+		config:     config,
+		store:      store,
+		tokenMaker: tokenMaker,
+	}
 	router := gin.Default()
 
 	//register custom validator tag "currency"
@@ -29,15 +46,26 @@ func NewServer(store *db.Store) *Server {
 	}
 
 	//2Register Routing แต่ละEndpoint
-	router.POST("/accounts", server.createAccount)
-	router.GET("/accounts/:id", server.getAccount)
-	router.GET("/accounts", server.listAccounts)
-	router.POST("/transfers", server.createTransfer)
+	// router.POST("/accounts", server.createAccount)
+	// router.GET("/accounts/:id", server.getAccount)
+	// router.GET("/accounts", server.listAccounts)
+	// router.POST("/transfers", server.createTransfer)
+	// router.POST("/users", server.createUser)
+
+	//1เส้นpublic can access with out token
 	router.POST("/users", server.createUser)
+	router.POST("/users/login", server.loginUser)
+
+	//private route ต้องผ่านmiddleware ก่อน
+	authRoutes := router.Group("/").Use(authMiddleware(server.tokenMaker))
+	authRoutes.POST("/accounts", server.createAccount)
+	authRoutes.GET("/accounts/:id", server.getAccount)
+	authRoutes.GET("accounts", server.listAccounts)
+	authRoutes.GET("/transfers", server.createTransfer)
 
 	//3แนบRouterกลับเข้าไปในserver
 	server.router = router
-	return server
+	return server, nil
 }
 
 // start เปิดรันserverบนAddress ที่กำหนด (":8080")

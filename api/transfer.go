@@ -5,10 +5,13 @@ package api
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"net/http"
 
 	db "simplebank/db"
+
+	"simplebank/token"
 
 	"github.com/gin-gonic/gin"
 )
@@ -32,6 +35,13 @@ func (server *Server) createTransfer(ctx *gin.Context) {
 	//2 ตรวจสอบaccountต้นทางมีอยู่จริง และcurrencyตรง กับreq
 	fromAccount, valid := server.validAccount(ctx, req.FromAccountID, req.Currency)
 	if !valid {
+		return
+	}
+
+	authPayload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
+	if fromAccount.Owner != authPayload.Username {
+		err := errors.New("บัญชีต้นทางไม่ได้เป็นของคุณ ไม่มีสิทธิ์")
+		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
 		return
 	}
 

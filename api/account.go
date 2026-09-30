@@ -8,12 +8,14 @@ import (
 	"net/http"
 	db "simplebank/db"
 
+	"simplebank/token"
+
 	"github.com/gin-gonic/gin"
 )
 
 // createAccountRequest กำหนด JSON ขาเข้า กับ (Binding tags) กฎการตรวจความถูกต้อง
 type createAccountRequest struct {
-	Owner    string `json:"owner" binding:"required"`
+	// Owner    string `json:"owner" binding:"required"`
 	Currency string `json:"currency" binding:"required,currency"`
 }
 
@@ -26,8 +28,12 @@ func (server *Server) createAccount(ctx *gin.Context) {
 	}
 
 	//2
+	authPayload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
+
+	//ดึงข้อมูลเจ้าของtokenจากcontext
 	arg := db.CreateAccountParams{
-		Owner:    req.Owner,
+		// Owner:    req.Owner,
+		Owner:    authPayload.Username,
 		Currency: req.Currency,
 		Balance:  0,
 	}

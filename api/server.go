@@ -61,7 +61,7 @@ func NewServer(config util.Config, store *db.Store) (*Server, error) {
 	authRoutes.POST("/accounts", server.createAccount)
 	authRoutes.GET("/accounts/:id", server.getAccount)
 	authRoutes.GET("accounts", server.listAccounts)
-	authRoutes.GET("/transfers", server.createTransfer)
+	authRoutes.POST("/transfers", server.createTransfer)
 
 	//3แนบRouterกลับเข้าไปในserver
 	server.router = router

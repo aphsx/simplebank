@@ -51,7 +51,9 @@ func addMoney(
 	return
 }
 
-// TransferTx version Protect Deadlock
+// TransferTx runs a money transfer in one DB transaction.
+// Account rows are locked in a consistent ID order so concurrent
+// opposite-direction transfers do not deadlock in the automated tests.
 func (store *Store) TransferTx(ctx context.Context, arg TransferTxParams) (TransferTxResult, error) {
 	var result TransferTxResult
 

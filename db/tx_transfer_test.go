@@ -1,7 +1,7 @@
 package db
 
-//testTransferTx testความถูกต้องการโอนเงิน Concurrent Transactions
-//ป้องกัน Race condition และเงินหายระหว่างทาง
+// TestTransferTx verifies balance consistency and ledger invariants
+// in automated concurrent-transfer tests (same-direction transfers).
 
 import (
 	"context"
@@ -77,12 +77,12 @@ func TestTransferTx(t *testing.T) {
 
 		k := int(diff1 / amount)
 		require.True(t, k >= 1 && k <= n)
-		require.NotContains(t, existed, k) //แต่ละรอบ kต้องไม่ซ้ำกัน (พิสูจไม่มีRace condition)
+		require.NotContains(t, existed, k) // each transfer observes a distinct balance step
 		existed[k] = true
 
 	}
 
-	//4 check ยอดเงินคงเหลือ สุดท้ายในฐานข้อมูลจริง
+	// Final stored balances after n concurrent transfers.
 	updatedAccount1, err := testQueries.GetAccount(context.Background(), account1.ID)
 	require.NoError(t, err)
 
@@ -95,6 +95,8 @@ func TestTransferTx(t *testing.T) {
 
 }
 
+// TestTransferTxDeadlock runs concurrent opposite-direction transfers
+// and checks that each call succeeds and both balances are unchanged.
 func TestTransferTxDeadlock(t *testing.T) {
 	store := NewStore(testDB)
 
@@ -129,13 +131,14 @@ func TestTransferTxDeadlock(t *testing.T) {
 
 	}
 
-	//2 ตรวจresult ทุกTransaction ต้องsuccesไร้ปัญหาDeadlock 100%
+	// Assert that every concurrent opposite-direction transfer completed
+	// without a deadlock error in this test run.
 	for i := 0; i < n; i++ {
 		err := <-errs
-		require.NoError(t, err) //ต้องไม่มี pq: deadlock detect สักครั้งเดียว
+		require.NoError(t, err)
 	}
 
-	//3 check ยอดเงินคงเหลือสุดท้าย โอนไป5ครั้งอนกลับ5ครั้ง ยอดต้องเท่าเดิม
+	// Equal transfers in each direction: final balances must match the start.
 
 	updatedAccount1, err := testQueries.GetAccount(context.Background(), account1.ID)
 	require.NoError(t, err)
